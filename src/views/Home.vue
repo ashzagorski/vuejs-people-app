@@ -3,11 +3,14 @@
 
     <h1>{{ message }}</h1>
 
-    <div> <h4>Number of People: {{ count }} </h4></div>
+    <div> <h4>Number of People: {{ people.length }} </h4></div>
 
     <div v-for="person in people">
-      <h2>Name: {{person.name}} </h2>
+      <h2 v-on:click="toggleBio(person)">Name: {{person.name}} </h2>
+      <div v-if="person.bioVisible">
       <p>Bio: {{ person.bio }} </p>
+      <button v-on:click="deletePerson(person)">Delete</button>
+      </div>
     </div>
 
     
@@ -22,28 +25,43 @@
 </template>
 
 <style>
+.strike {
+  text-decoration: line-through;
+}
 </style>
 
 <script>
+
+  var axios = require("axios");
+
 export default {
   data: function() {
     return {
-      message: "People",
-      people: [
-      {name: "Martha Vineyard", bio: "An elegant lady that likes expensive things and wine.", bioVisible: true},
-      {name: "Yeller Longfoot", bio: "From deep south, likes chewing tobacco and his hound dog.", bioVisible: true}],
+      message: "Intersting People",
+      people: [],
 
       newPerson: {name: "", bio: "", bioVisible: true},
     };
   },
-  created: function() {},
+  created: function() {
+    axios.get("http://localhost:3000/api/people").then(function(response) {
+      this.people = response.data;
+    }.bind(this));
+
+  },
   methods: {
     addPerson: function() {
+      if (this.newPerson.name && this.newPerson.bio) {
       this.people.push(this.newPerson);
       this.newPerson = {name: "", bio: "", bioVisible: true};
+      }
     },
-    countPeople: function() {
-      var count = this.people.length;
+    toggleBio: function(inputPerson) {
+        inputPerson.bioVisible = !inputPerson.bioVisible;
+    },
+    deletePerson: function() {
+      var index = this.people.indexOf(inputPerson);
+      this.people.splice(index, 1);
     }
   },
   computed: {}
