@@ -3,6 +3,10 @@
 
     <h1>{{ message }}</h1>
 
+    <ul>
+      <li v-for="error in errors"> {{ error }} </li>
+    </ul>
+
     <div> <h4>Number of People: {{ people.length }} </h4></div>
 
     <div v-for="person in people">
@@ -41,6 +45,8 @@ export default {
       people: [],
 
       newPerson: {name: "", bio: "", bioVisible: true},
+
+      errors: []
     };
   },
   created: function() {
@@ -51,11 +57,30 @@ export default {
   },
   methods: {
     addPerson: function() {
-      if (this.newPerson.name && this.newPerson.bio) {
-      this.people.push(this.newPerson);
-      this.newPerson = {name: "", bio: "", bioVisible: true};
-      }
+      this.errors = [];
+      var params = {
+                    name: this.newPerson.name,
+                    bio: this.newPerson.bio
+                   };
+        
+        axios
+        .post("http://localhost:3000/api/people", params)
+
+
+
+        .then(response => {
+             this.people.push(response.data);
+             this.newPerson = {name: "", bio: "", bioVisible: false};
+          })
+
+
+        .catch(error => {
+          this.errors = error.response.data.errors;
+        });
+        
+
     },
+    
     toggleBio: function(inputPerson) {
         inputPerson.bioVisible = !inputPerson.bioVisible;
     },
